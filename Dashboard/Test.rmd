@@ -1,0 +1,179 @@
+---
+title: "Similarity of African Countries Development over Time"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+runtime: shiny
+---
+
+```{r}
+
+library(dplyr) 
+library(tmap) # for mapping
+library(fields) # a faster way to compute dist matrixes, output is matrix, not 'dist'
+library(reshape) # necessary to transform distance matrix into long format
+library(sf) # needed to code dataframes into 'sf' format (st_as_st)
+library(shiny) # 
+library(leaflet)
+
+setwd("C:\\Users\\rsolt008\\Documents\\personal git\\WorldBank Shiny App\\Dashboard/") 
+load("C:\\Users\\rsolt008\\Documents\\personal git\\WorldBank Shiny App\\NN_dataset.rdata")
+#load("C:\\Users\\rsolt008\\Documents\\personal git\\WorldBank Shiny App\\worldBank_raw_wide.rdata")
+load("C:\\Users\\rsolt008\\Documents\\personal git\\WorldBank Shiny App\\dat_wide.rdata")
+
+
+bins <- c(0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, Inf)
+pal <- colorBin("YlOrRd", domain = nn_dist_viz$Distance, bins = bins,reverse = T)
+
+
+nn_dist_viz <- dplyr::left_join(nn_dist_viz,dat_wide, 
+                                by=c("Country_Comp"="country","Year"="year"))
+
+# nn_dist_viz is 88 mb large
+
+clist<-unique(nn_dist_viz$Country_Focus)
+
+```
+
+
+
+Nearest Neigbors
+=====================================     
+
+Column {data-width=400, .sidebar}
+-------------------------------------
+### Select Country and Year 
+      
+```{r}
+
+selectInput("Variable", "Country:",
+                choices = clist)
+    
+sliderInput("Year",
+                "Year:",
+                min = 1991,
+                max = 2016,
+                value= 1991,
+                step= 1,
+                sep = "")
+
+# Reactive expression for the given country in the Title
+  formulaText <- reactive({
+    paste("Similarity Mapping for", input$Variable)
+  })
+  
+  # Return the formula text for printing as a caption
+  output$caption <- renderText({
+    formulaText()
+  })
+  
+  #############
+  
+  # Reactive expression for the given country dataset
+  nn_dist_sub <- reactive({
+    tmp_dist <- nn_dist_viz[ which ( nn_dist_viz$Country_Focus==input$Variable & nn_dist_viz$Year==input$Year ) , ]
+    tmp_dist 
+    
+    })
+  
+  
+  nn_focus_country <- reactive({
+    tmp_foc <- nn_dist_viz[ which (nn_dist_viz$Country_Comp==input$Variable & nn_dist_viz$Year==input$Year), ] 
+    tmp_foc
+    
+  })
+
+```
+    
+    
+    
+The selected country appears in blue on the map. All other African countries are colored a shade of yellow, orange, or red that relates to how similar their reported WBI (World Bank Indicators) were to the selected country for the given year.
+
+Territories or countries that appear grey are missing data. Notable exclusions include South Sudan and the Eastern Western Sahara.
+
+
+Column {data-width=600}
+-------------------------------------
+
+### "Nearest-Neighbors" Map 
+
+```{r}
+renderLeaflet({
+    leaflet() %>%
+      addTiles() %>%
+      addPolygons(data=nn_dist_sub(),  
+                  fillColor = ~pal(Distance), 
+                  stroke = FALSE,
+                  popup=paste("<b>","Country","</b>", nn_dist_sub()$Country_Comp, "<br>",
+                              "GDP PPP:", nn_dist_sub()$GDP_pC_PPP, "<br>",
+                              "Birth Rate:", nn_dist_sub()$birth_rate_per_K, "<br>",
+                              "Electricity:", nn_dist_sub()$access_to_electricity_perc, "<br>",
+                              "Unemployed:", nn_dist_sub()$Unemployment_perc),
+                  popupOptions = popupOptions(maxWidth ="100%", 
+                                              closeOnClick = TRUE)) %>%
+      addPolygons(data=nn_focus_country(), 
+                  fillColor = "#a6bddb",  
+                  weight = 1,
+                  opacity = 1,
+                  color = "white",
+                  dashArray = "3",
+                  fillOpacity = .1) %>%
+      addLegend(pal=pal, values=nn_dist_sub()$Distance, opacity = 0.7, title = "Similarity",
+                position = "bottomright") 
+  })
+
+```
+
+
+
+Time-Series Clusters
+===================================== 
+
+Column {data-width=400}
+-------------------------------------
+
+### Number of Clusters
+    
+```{r}
+```
+    
+### Notes
+
+These clusters are based upon .... 
+
+Column {data-width=600}
+-------------------------------------
+
+### Results
+
+
+Raw Data
+===================================== 
+    
+
+
+### Raw Data
+    
+```{r}
+setwd("C:\\Users\\rsolt008\\Documents\\personal git\\WorldBank Shiny App\\")
+load("worldBank_raw_wide.rdata")
+
+library(DT)
+DT::datatable(worldBank_raw_wide, options = list(
+  bPaginate = TRUE
+))
+
+```
+    
+
+### Notes
+
+All metrics reported are standard World Bank Indicators (WBI) which were collected from African regions and countries from 2001-2016. Not all records are complete, with notable ommissions for Central African Republic, Mauritania, Southern Sudan, and the Western Sahara.
+
+**GDP_pC_PPP** - GDP per capita, PPP (current international $) - NY.GDP.PCAP.PP.CD  
+**birth_rate_per_K** - Birth rate, crude (per 1,000 people) - SP.DYN.CBRT.IN  
+**access_to_electricity_perc** - Access to electricity (% of population) - EG.ELC.ACCS.ZS  
+**Unemployment_perc** - Unemployment, total (% of total labor force) (modeled ILO estimate) - SL.UEM.TOTL.ZS  
+
+

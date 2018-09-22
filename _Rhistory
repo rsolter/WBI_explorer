@@ -1,0 +1,512 @@
+af_wbi_l$data[[1]]
+af_wbi_l <- af_wbi_l %>% group_by(metric) %>% nest()
+af_wbi_l$data[[1]]
+af_wbi_l
+table(complete.cases(af_wbi_l$data[[1]]))
+table.prop(complete.cases(af_wbi_l$data[[1]]))
+sum(complete.cases(af_wbi_l$data[[1]]))
+class(af_wbi_l$data[[1]])
+library(purr)
+pal <- colorBin("YlOrRd", domain = nn_dist_viz$Distance, bins = bins)
+library(dplyr)
+library(tmap) # for mapping
+library(fields) # a faster way to compute dist matrixes, output is matrix, not 'dist'
+library(reshape) # necessary to transform distance matrix into long format
+library(sf) # needed to code dataframes into 'sf' format (st_as_st)
+library(shiny) #
+library(leaflet)
+load("C:\\Users\\rsolt008\\Documents\\personal git\\WorldBank Shiny App\\NN_dataset.rdata")
+#load("C:\\Users\\rsolt008\\Documents\\personal git\\WorldBank Shiny App\\worldBank_raw_wide.rdata")
+load("C:\\Users\\rsolt008\\Documents\\personal git\\WorldBank Shiny App\\dat_wide.rdata")
+pal <- colorBin("YlOrRd", domain = nn_dist_viz$Distance, bins = bins)
+pal
+pal <- colorBin("RdOrYl", domain = nn_dist_viz$Distance, bins = bins)
+pal <- colorBin(-"YlOrRd", domain = nn_dist_viz$Distance, bins = bins)
+pal <- colorBin("YlOrRd", domain = nn_dist_viz$Distance, bins = bins,reverse = T)
+glimpse(dat_wide)
+library(WDI)
+library(dplyr)
+library(tidyr)
+library(data.table)
+library(geojsonio)
+library(leaflet)
+glimpse(dat_wide)
+length(unique(dat_wide$country))
+unique(dat_wide$country)
+class(dat_wide)
+complete_countries <- function(df){
+incompleteCountries <- df[!complete.cases(df), ] %>% dplyr::select(country) %>% unique()
+}
+complete_countries(dat_wide)
+complete_countries <- function(df){
+incompleteCountries <- df[!complete.cases(df), ] %>% dplyr::select(country) %>% unique()
+return(incompleteCountries)
+}
+complete_countries(dat_wide)
+incompleteCountries <-dat_wide[!complete.cases(dat_wide), ] %>% select(country) %>% unique()
+incompleteCountries
+df<-dat_wide
+incompleteCountries <- df[!complete.cases(df), ] %>% dplyr::select(country) %>% unique()
+complete_countries_list<-df %>%
+dplyr::filter(!country%in%incompleteCountries$country) %>%
+dplyr::arrange(country,year) %>%
+dplyr::select(-year) %>%
+dplyr::group_by(iso2c,country) %>% nest()
+df_tt <- as.list(complete_countries_list$data)
+names(df_tt) <- complete_countries_list$country
+df_tt <- lapply(df_tt, as.matrix)
+identical(df_tt,proc_dat2)
+length(unique(df_tt))
+length(unique(df$country))
+new_country_N <- length(df)
+new_country_N
+new_country_N <- length(df_tt)
+new_country_N
+complete_countries <- function(df){
+incompleteCountries <- df[!complete.cases(df), ] %>% dplyr::select(country) %>% unique()
+complete_countries_list<-df %>%
+dplyr::filter(!country%in%incompleteCountries$country) %>%
+dplyr::arrange(country,year) %>%
+dplyr::select(-year) %>%
+dplyr::group_by(iso2c,country) %>% nest()
+df_tt <- as.list(complete_countries_list$data)
+names(df_tt) <- complete_countries_list$country
+df_tt <- lapply(df_tt, as.matrix)
+return(df_tt)
+orig_country_N <- length(unique(df$country))
+new_country_N <- length(df_tt)
+lost_country_N <- orig_country_N-new_country_N
+print("Dropped ",lost_country_N," countries for non-completeness")
+}
+complete_countries(dat_wide)
+complete_countries <- function(df){
+incompleteCountries <- df[!complete.cases(df), ] %>% dplyr::select(country) %>% unique()
+complete_countries_list<-df %>%
+dplyr::filter(!country%in%incompleteCountries$country) %>%
+dplyr::arrange(country,year) %>%
+dplyr::select(-year) %>%
+dplyr::group_by(iso2c,country) %>% nest()
+df_tt <- as.list(complete_countries_list$data)
+names(df_tt) <- complete_countries_list$country
+df_tt <<- lapply(df_tt, as.matrix)
+orig_country_N <- length(unique(df$country))
+new_country_N <- length(df_tt)
+lost_country_N <- orig_country_N-new_country_N
+print("Dropped ",lost_country_N," countries for non-completeness")
+}
+complete_countries(dat_wide)
+complete_countries <- function(df){
+incompleteCountries <- df[!complete.cases(df), ] %>% dplyr::select(country) %>% unique()
+complete_countries_list<-df %>%
+dplyr::filter(!country%in%incompleteCountries$country) %>%
+dplyr::arrange(country,year) %>%
+dplyr::select(-year) %>%
+dplyr::group_by(iso2c,country) %>% nest()
+df_tt <- as.list(complete_countries_list$data)
+names(df_tt) <- complete_countries_list$country
+df_tt <<- lapply(df_tt, as.matrix)
+orig_country_N <- length(unique(df$country))
+new_country_N <- length(df_tt)
+lost_country_N <- orig_country_N-new_country_N
+print(paste("Dropped ",lost_country_N," countries for non-completeness",sep=""))
+}
+complete_countries(dat_wide)
+complete_countries <- function(df){
+incompleteCountries <- df[!complete.cases(df), ] %>% dplyr::select(country) %>% unique()
+complete_countries_list<-df %>%
+dplyr::filter(!country%in%incompleteCountries$country) %>%
+dplyr::arrange(country,year) %>%
+dplyr::select(-year) %>%
+dplyr::group_by(iso2c,country) %>% nest()
+df_tt <- as.list(complete_countries_list$data)
+names(df_tt) <- complete_countries_list$country
+df_tt <<- lapply(df_tt, as.matrix)
+orig_country_N <- length(unique(df$country))
+new_country_N <- length(df_tt)
+lost_country_N <- orig_country_N-new_country_N
+print(paste("Dropped ",lost_country_N," of ",orig_country_N," countries for non-completeness",sep=""))
+}
+complete_countries(dat_wide)
+!unique(df$country)%in%names(df_tt)
+unique(df$country)[!unique(df$country)%in%names(df_tt), ]
+unique(df$country)[, !unique(df$country)%in%names(df_tt)]
+df$country[!unique(df$country)%in%names(df_tt)]
+unique(df$country[!unique(df$country)%in%names(df_tt)])
+unique(!df$country[unique(df$country)%in%names(df_tt)])
+unique(df$country)
+!unique(df$country)%in%names(df_tt)
+# Names of dropped countries
+all_cc <- unique(df$country)
+new_cc <- names(df_tt)
+all_cc!%in%new_cc
+!all_cc%in%new_cc
+all_cc[!all_cc%in%new_cc]
+dropped_cc <- all_cc[!all_cc%in%new_cc]
+complete_countries <- function(df){
+incompleteCountries <- df[!complete.cases(df), ] %>% dplyr::select(country) %>% unique()
+complete_countries_list<-df %>%
+dplyr::filter(!country%in%incompleteCountries$country) %>%
+dplyr::arrange(country,year) %>%
+dplyr::select(-year) %>%
+dplyr::group_by(iso2c,country) %>% nest()
+df_tt <- as.list(complete_countries_list$data)
+names(df_tt) <- complete_countries_list$country
+df_tt <<- lapply(df_tt, as.matrix)
+# Number of dropeed countries
+orig_country_N <- length(unique(df$country))
+new_country_N <- length(df_tt)
+lost_country_N <- orig_country_N-new_country_N
+# Names of dropped countries
+all_cc <- unique(df$country)
+new_cc <- names(df_tt)
+dropped_cc <- all_cc[!all_cc%in%new_cc]
+print(paste("Dropped ",lost_country_N," of ",orig_country_N," countries for non-completeness",sep=""))
+print(dropped_cc)
+}
+complete_countries(dat_wide)
+identical(df_tt,proc_dat2)
+head(dat_wide)
+df_tt
+load("dat_wide.rdata")
+load(file="African_geometries.rdata")
+dist_Long_func <- function(df){
+# scaling
+df <- data.frame(df[1:3], apply(df[,4:7], 2, base::scale))
+# calculating distances in distance matrix
+df_1 <- fields::rdist(df[ ,4:7])
+# adding country names
+row.names(df_1) <- df$country
+colnames(df_1) <- df$country
+# transforming into long format
+long_dist <<- reshape::melt(df_1)[melt(upper.tri(df_1))$value, ]
+#long_dist <- reshape::melt(df_1)[melt(df_1)$value, ]
+names(long_dist) <- c("Country_Focus","Country_Comp","Distance")
+long_dist
+}
+# -- apply nn_viz to (dat_wide)
+nn_viz <- function(df){
+# splitting apart by year into a list
+df <- df %>% dplyr::arrange(year, country)
+df_long <- split(df, df$year)
+# applying to each year, combining in a list
+dist_list <- lapply(df_long, dist_Long_func)
+# combining all elements in list into one long dataframe
+dist_df <- do.call("rbind",dist_list)
+# Pulling Row name into df as a year
+dist_df <- tibble::rownames_to_column(dist_df,"Year")
+dist_df$Year <- substr(dist_df$Year,start = 1,stop = 4)
+# renaming and exporting into nearest-neighbors dataset
+nn_distances_long <- dist_df
+# switching Country_Focus, Country_Comp variable types to character
+nn_distances_long$Country_Focus <- as.character(nn_distances_long$Country_Focus)
+nn_distances_long$Country_Comp <- as.character(nn_distances_long$Country_Comp)
+# duplicating records and switching focus, comp columns
+nn_distances_long_dupe <- nn_distances_long
+names(nn_distances_long_dupe) <- c("Year","Country_Comp","Country_Focus","Distance")
+nn_distances_long_dupe <- nn_distances_long_dupe[ ,c(1,3,2,4)]
+# binding the two
+nn_distances_long <- rbind(nn_distances_long, nn_distances_long_dupe)
+# rejoining iso2 data
+codes<-dat_wide %>% select(country,iso2c) %>% unique()
+nn_distances_long <- left_join(nn_distances_long,codes,by=c("Country_Comp"="country"))
+names(nn_distances_long) <- c("Year","Country_Focus","Country_Comp","Distance","Country_Comp_Iso2c")
+nn_dist_viz <- left_join(nn_distances_long,Af_geo_final,by=c("Country_Comp_Iso2c"="iso2"))
+nn_dist_viz <- nn_dist_viz[,c(1:4,9)]
+nn_dist_viz <- st_as_sf(nn_dist_viz)
+nn_dist_viz$Year <- as.numeric(nn_dist_viz$Year)
+}
+# -- apply nn_viz to (dat_wide)
+nn_viz <- function(df){
+# splitting apart by year into a list
+df <- df %>% dplyr::arrange(year, country)
+df_long <- split(df, df$year)
+# applying to each year, combining in a list
+dist_list <- lapply(df_long, dist_Long_func)
+# combining all elements in list into one long dataframe
+dist_df <- do.call("rbind",dist_list)
+# Pulling Row name into df as a year
+dist_df <- tibble::rownames_to_column(dist_df,"Year")
+dist_df$Year <- substr(dist_df$Year,start = 1,stop = 4)
+# renaming and exporting into nearest-neighbors dataset
+nn_distances_long <- dist_df
+# switching Country_Focus, Country_Comp variable types to character
+nn_distances_long$Country_Focus <- as.character(nn_distances_long$Country_Focus)
+nn_distances_long$Country_Comp <- as.character(nn_distances_long$Country_Comp)
+# duplicating records and switching focus, comp columns
+nn_distances_long_dupe <- nn_distances_long
+names(nn_distances_long_dupe) <- c("Year","Country_Comp","Country_Focus","Distance")
+nn_distances_long_dupe <- nn_distances_long_dupe[ ,c(1,3,2,4)]
+# binding the two
+nn_distances_long <- rbind(nn_distances_long, nn_distances_long_dupe)
+# rejoining iso2 data
+codes<-dat_wide %>% select(country,iso2c) %>% unique()
+nn_distances_long <- left_join(nn_distances_long,codes,by=c("Country_Comp"="country"))
+names(nn_distances_long) <- c("Year","Country_Focus","Country_Comp","Distance","Country_Comp_Iso2c")
+nn_dist_viz <- left_join(nn_distances_long,Af_geo_final,by=c("Country_Comp_Iso2c"="iso2"))
+nn_dist_viz <- nn_dist_viz[,c(1:4,9)]
+nn_dist_viz <- st_as_sf(nn_dist_viz)
+nn_dist_viz$Year <- as.numeric(nn_dist_viz$Year)
+TEST<<-nn_dist_viz
+}
+nn_viz(dat_wide)
+library(sf)
+library(dplyr)
+library(fields) # a faster way to compute dist matrixes, output is matrix, not 'dist'
+library(reshape) # necessary to transform distance matrix into long format
+library(sf) # needed to code dataframes into 'sf' format (st_as_st)
+library(leaflet)
+# -- apply nn_viz to (dat_wide)
+nn_viz <- function(df){
+# splitting apart by year into a list
+df <- df %>% dplyr::arrange(year, country)
+df_long <- split(df, df$year)
+# applying to each year, combining in a list
+dist_list <- lapply(df_long, dist_Long_func)
+# combining all elements in list into one long dataframe
+dist_df <- do.call("rbind",dist_list)
+# Pulling Row name into df as a year
+dist_df <- tibble::rownames_to_column(dist_df,"Year")
+dist_df$Year <- substr(dist_df$Year,start = 1,stop = 4)
+# renaming and exporting into nearest-neighbors dataset
+nn_distances_long <- dist_df
+# switching Country_Focus, Country_Comp variable types to character
+nn_distances_long$Country_Focus <- as.character(nn_distances_long$Country_Focus)
+nn_distances_long$Country_Comp <- as.character(nn_distances_long$Country_Comp)
+# duplicating records and switching focus, comp columns
+nn_distances_long_dupe <- nn_distances_long
+names(nn_distances_long_dupe) <- c("Year","Country_Comp","Country_Focus","Distance")
+nn_distances_long_dupe <- nn_distances_long_dupe[ ,c(1,3,2,4)]
+# binding the two
+nn_distances_long <- rbind(nn_distances_long, nn_distances_long_dupe)
+# rejoining iso2 data
+codes<-dat_wide %>% dplyr::select(country,iso2c) %>% unique()
+nn_distances_long <- dplyr::left_join(nn_distances_long,codes,by=c("Country_Comp"="country"))
+names(nn_distances_long) <- c("Year","Country_Focus","Country_Comp","Distance","Country_Comp_Iso2c")
+nn_dist_viz <- dplyr::left_join(nn_distances_long,Af_geo_final,by=c("Country_Comp_Iso2c"="iso2"))
+nn_dist_viz <- nn_dist_viz[,c(1:4,9)]
+nn_dist_viz <- sf::st_as_sf(nn_dist_viz)
+nn_dist_viz$Year <- as.numeric(nn_dist_viz$Year)
+TEST<<-nn_dist_viz
+}
+nn_viz(dat_wide)
+identical(TEST,nn_dist_viz)
+# -- apply nn_viz to (dat_wide)
+nn_viz <- function(df){
+# splitting apart by year into a list
+df <- df %>% dplyr::arrange(year, country)
+df_long <- split(df, df$year)
+# applying to each year, combining in a list
+dist_list <- lapply(df_long, dist_Long_func)
+# combining all elements in list into one long dataframe
+dist_df <- do.call("rbind",dist_list)
+# Pulling Row name into df as a year
+dist_df <- tibble::rownames_to_column(dist_df,"Year")
+dist_df$Year <- substr(dist_df$Year,start = 1,stop = 4)
+# renaming and exporting into nearest-neighbors dataset
+nn_distances_long <- dist_df
+# switching Country_Focus, Country_Comp variable types to character
+nn_distances_long$Country_Focus <- as.character(nn_distances_long$Country_Focus)
+nn_distances_long$Country_Comp <- as.character(nn_distances_long$Country_Comp)
+# duplicating records and switching focus, comp columns
+nn_distances_long_dupe <- nn_distances_long
+names(nn_distances_long_dupe) <- c("Year","Country_Comp","Country_Focus","Distance")
+nn_distances_long_dupe <- nn_distances_long_dupe[ ,c(1,3,2,4)]
+# binding the two
+nn_distances_long <- rbind(nn_distances_long, nn_distances_long_dupe)
+# rejoining iso2 data
+codes<-dat_wide %>% dplyr::select(country,iso2c) %>% unique()
+nn_distances_long <- dplyr::left_join(nn_distances_long,codes,by=c("Country_Comp"="country"))
+names(nn_distances_long) <- c("Year","Country_Focus","Country_Comp","Distance","Country_Comp_Iso2c")
+nn_dist_viz <- dplyr::left_join(nn_distances_long,Af_geo_final,by=c("Country_Comp_Iso2c"="iso2"))
+nn_dist_viz <- nn_dist_viz[,c(1:4,9)]
+nn_dist_viz <- sf::st_as_sf(nn_dist_viz)
+nn_dist_viz$Year <- as.numeric(nn_dist_viz$Year)
+nn_dist_viz
+}
+class(nn_dist_viz)
+load("C:\\Users\\rsolt008\\Documents\\personal git\\WorldBank Shiny App\\NN_dataset.rdata")
+Time Series Clustering
+setwd("C:\\Users\\rsolt008\\Documents\\personal git\\WorldBank Shiny App\\")
+load("dat_wide.rdata")
+load("list_mv_wb.rdata")
+library(dtwclust)
+library(tm)
+library(wordcloud)
+library(knitr)
+library(kableExtra)
+library(ggplot2)
+library(scales)
+library(dplyr)
+library(tidyr)
+library(tibble)
+library(purrr)
+class(proc_dat2)
+# Using GAK distance, and four clusters
+mvc <- tsclust(proc_dat2, k = 4L, distance = "gak", seed = 390)
+names(mvc@datalist)
+# exporting cluster assignments
+cluster_export <- mvc@cluster
+names(cluster_export) <- names(mvc@datalist)
+names(cluster_export)
+mvc@clusinfo
+class(cluster_export)
+cluster_export
+rm(cluster_export)
+# exporting cluster assignments
+cluster_export <- as.data.frame(cbind(names(mvc@datalist),mvc@cluster))
+names(cluster_export) <- c("country","Cluster")
+cluster_export
+mvc <- tsclust(proc_dat2, k = 4L, distance = "gak", seed = 390)
+# cluster info
+mvc@clusinfo
+mvc@datalist
+mvc@datalist$Benin
+#exporting country and cluster
+names(mvc@datalist)
+mvc@cluster
+# Exporing Clusters ----
+# Exporting clusterrs
+cluster_export <- mvc@cluster
+names(cluster_export) <- names(mvc@datalist)
+cluster_export <- as.data.frame(cbind(names(mvc@datalist),mvc@cluster))
+names(cluster_export) <- c("country","Cluster")
+x <- mvc@datalist %>%
+purrr::set_names(cluster_export$country) %>%
+tibble::enframe("country") %>%
+mutate(cluster_num=cluster_export$Cluster)
+x %>% head()
+x$value
+head(x)
+glimpse(mvc@datalist)
+x <- mvc@datalist %>%
+purrr::set_names(cluster_export$country)
+head(x)
+proc_dat2 %>% glimpse()
+proc_dat2 %>% head()
+load(file="dat_wide.rdata")
+dat_wide %>% head()
+years<-unique(dat_wide$year)
+years
+# Using GAK distance, and four clusters
+mvc <- tsclust(proc_dat2, k = 4L, distance = "gak", seed = 390)
+lusters ----
+# Exporting clusterrs
+cluster_export <- mvc@cluster
+names(cluster_export) <- names(mvc@datalist)
+cluster_export <- as.data.frame(cbind(names(mvc@datalist),mvc@cluster))
+names(cluster_export) <- c("country","Cluster")
+# Exporting clusterrs
+cluster_export <- mvc@cluster
+names(cluster_export) <- names(mvc@datalist)
+cluster_export <- as.data.frame(cbind(names(mvc@datalist),mvc@cluster))
+names(cluster_export) <- c("country","Cluster")
+WDI_trend_calc <- function(matrix){
+matrix2 <- as.data.frame(cbind(years,matrix))
+matrix2 <- gather(matrix2,metric,value,-Year)
+matrix2 <- matrix2 %>% group_by(metric) %>% mutate(value_lag=lag(value),
+first_value=first(value))
+matrix2 <- matrix2 %>% mutate(RAW=value,
+YOY=(value-value_lag)/value*100,
+CUM=(value/first_value)*100)
+matrix2 <- matrix2 %>% select(Year,metric,YOY,CUM,RAW)
+matrix2_long <- matrix2 %>% gather(measure,value,-Year,-metric)
+return(matrix2_long)
+}
+x <- mvc@datalist %>%
+purrr::set_names(cluster_export$country) %>%
+tibble::enframe("country") %>%
+mutate(cluster_num=cluster_export$Cluster) %>%
+mutate(value=map(value, WDI_trend_calc)) %>%
+unnest()
+WDI_trend_calc <- function(matrix){
+matrix2 <- as.data.frame(cbind(Year=years,matrix))
+matrix2 <- gather(matrix2,metric,value,-Year)
+matrix2 <- matrix2 %>% group_by(metric) %>% mutate(value_lag=lag(value),
+first_value=first(value))
+matrix2 <- matrix2 %>% mutate(RAW=value,
+YOY=(value-value_lag)/value*100,
+CUM=(value/first_value)*100)
+matrix2 <- matrix2 %>% select(Year,metric,YOY,CUM,RAW)
+matrix2_long <- matrix2 %>% gather(measure,value,-Year,-metric)
+return(matrix2_long)
+}
+x <- mvc@datalist %>%
+purrr::set_names(cluster_export$country) %>%
+tibble::enframe("country") %>%
+mutate(cluster_num=cluster_export$Cluster) %>%
+mutate(value=map(value, WDI_trend_calc)) %>%
+unnest()
+# note -- years is coming from a variable defined in 0001 WBI import leaflet (derived from dat_wide)
+WDI_trend_calc <- function(matrix){
+matrix2 <- as.data.frame(cbind(Year=years,matrix))
+matrix2 <- gather(matrix2,metric,value,-Year)
+matrix2 <- matrix2 %>% group_by(metric) %>% mutate(value_lag=lag(value),
+first_value=first(value))
+matrix2 <- matrix2 %>% mutate(RAW=value,
+YOY=(value-value_lag)/value*100,
+CUM=(value/first_value)*100)
+matrix2 <- matrix2 %>% select(Year,metric,YOY,CUM,RAW)
+matrix2_long <- matrix2 %>% gather(measure,value,-Year,-metric)
+return(matrix2_long)
+}
+x <- mvc@datalist %>%
+purrr::set_names(cluster_export$country) %>%
+tibble::enframe("country") %>%
+mutate(cluster_num=cluster_export$Cluster) %>%
+mutate(value=map(value, WDI_trend_calc)) %>%
+unnest()
+#ERS Import #2
+## Set up ----
+library(dplyr)
+library(tidyr)
+library(RODBC)
+library(tibble)
+load(file="C:\\Users\\rsolt008\\Documents\\Connection Information\\SQL Login.rdata")
+awconn <- odbcConnect(connection_info$AW.DSN, connection_info$AW.UID, pwd=connection_info$AW.PWD)
+setwd("C:\\Users\\rsolt008\\Desktop\\ERS\\")
+q1 <- "
+SELECT
+CONFO_NUM_ORIG_ID,
+CONFO_NUM_CURR_ID,
+CREATE_DT,
+RES_ARRIVAL_DT,
+RES_DEPARTURE_DT,
+RATE_PLAN_CD,
+PROPERTY_CD,
+SPL_REQUEST_CD,
+SPL_REQUEST_CD_DESC_TXT,
+LAST_UPDATE_TS,
+BASE_AMT,
+BASE_DRVD_AMT,
+CURRENCY_CD
+FROM AW_CDS_DEV_DBO.MRDW_RES_ETL_EADS_VW
+WHERE CREATE_DT >='2018-04-01 00:00:00'
+AND CREATE_DT <= '2018-09-01 00:00:00'
+AND RES_ARRIVAL_DT <= '2018-09-01 00:00:00'
+AND PROPERTY_CD in ('AUSJW',
+'BHMMC','BMIMC','BTRMC','BWIAP','BWIIH','BWIWF','CHIAP','CHIBR','CHIDG','CHIDS','CHIJW','CHILN','CHINW','CHIOB','CHIRS','CHISR','CHIST',
+'CHSMN','CIDIC','CIDMC','CMHNW','CRWWV','CVGAM','DENBO''DENDR','DFWAM','DSMWD','DTTTT','DTWDI','DTWDN','DTWDT','DTWLI','DTWYS',
+'EWRWD','FTCCO','GRRJW','HOUWM','IADAP','IADWF','ITHMC',
+'LANEA','LNKFS','MCIAP','MKEDN','MKEMW','MOBMC','MSNWE','MSPCC','MSPDD','MSPJW','MSPMN','MSPNW','MSPWE','NYCAK','NYCRT','NYCSG',
+'NYCWE','NYCWS','OMAWE','ORFCD','ORFWS','PHFOY','PVDBR','RICDT','WASFP','WASGB','WASJW','WASKB','WASPY','WASRB','WASTC','WASWE',
+'WASWG','RICMW','RNOBR','RSTMC','SANDM','STLAP','STLSA','STLWE','WASBN','WASBT','WASCC','WASCO','WASDT','ABEBR','ATLAK','ATLAP',
+'BDLAP','BDLCT','BDLDT','BDRCT','BNAAV','BNACS','BNASH','BNATN','BOSBU','BOSCB','BOSLW','BOSNT','BOSPB','BOSPP','BOSWF','BWIAK',
+'CAEMH','CHADT','CHIMN','CHSBR','CHSMC','CLEAP','CLEBR','CLEEM','DALCL','DALDT','DALMT','DALPT','DALQC','DALRD','DALWL','DAYOH',
+'DFWAP','DFWDT','ELPTX','GONMM','GSODT','GSONC','GSPAP','HHHGR','HOUEG','HOUGP','HOUMC','HOUSL','INDBR','INDCC','INDDT','INDJW',
+'INDNO','INTMC','LEXKY','LITPB','LNSMC','MEMMM','MYRGD','OKCBW','PHLAR','PHLDT','PHLPR','PIAMC','SATDT','SATPL','SATRC','SAVRF',
+'SDFLM','SDFLS','SPAMC','STLMG','TRICC','TULBR','TULSE','ATLAW','ATLBD','ATLCP','ATLEG','ATLJW','ATLMA','ATLMQ','ATLNE','ATLNO',
+'ATLPC','ATLRB','ATLSI','PITBR','PITDT','PITMC','PITNO','PSMWW','PVDLW','PWMAP','RDUCP','RDUCV','RDUNC','RDURN','SANDT','CLESC',
+'CLTBR','CLTCC','CLTPH','CLTRP','CMHAM','CSGMC','CVGBR','CVGDR','CVGKG','CVGNO','DALBR','AGSMC','CHISW','DFWMC','DSMIA','DTWPO',
+'EWRAP','EWRBR','EWRGP','EWRHO','EWRNR','EWRPR','EWRSB','HPNSH','SEAMB','SEAMC','SEASM','SEAWF','SFOBG','SFODT','SFOFW','SFOJW',
+'SFOLS','SFONP','SFOSA','SJCFM','IADMC','ICTWE','LAXLZ','LAXMB','LAXNB','LGAAP','LGBRN','MCIDT','MCOSR','MKEDE','MRYCA','NYCLI','SJCGA',
+'SJCSJ','SLCCC','SLCPC','SLCUP','SLCUT','SLCVO','TTNDF','ALBBR','ALBNY','ANCDT','ATLSA','AUSAP','AUSNO','AVLBR','BUFBD','BUFNY',
+'CHIDM','CHINB','CHISB','NYCML','OAKBR','OAKDT','OAKMC','OAKSR','OAKWC','ORFPT','OXRVB','PBIBR','PDXCT','PHLBR','SATNW','AUSSH',
+'MOBBR','MOBRV','ATLBC','DTWRM','MCIPL','MCNFS','ROCAP','ROCDL','FLLSB','IADDS','LASST','LAXFL','MFEBR','MIABB','MIAMB','PVDRI',
+'WASMC','WASUM','ATLMS','BOSCO','CVGNE','DENSA','DTWSL','LAXLM',
+'MCIOP','MCORZ','SACMC','SFOUS','SOSBW','VISMC','WASGN','WASSB','BWISH','CMHBR','MSPAK','NYCBK','BURAP','SNAAS','STFCT','LAXIR','MCOJW','MSYMM');
+"
+start_ts<-proc.time()
+test_full_data_set<-sqlQuery(awconn,q1,stringsAsFactors=FALSE,believeNRows=FALSE)
+format(utils::object.size(test_full_data_set),units = "Mb")
+proc.time()-start_ts
+test_full_data_set

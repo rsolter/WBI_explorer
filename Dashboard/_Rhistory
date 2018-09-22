@@ -1,0 +1,512 @@
+,res_departure_dt
+,property_cd
+,market_cd
+,spl_request_cd
+,spl_request_cd_desc_txt
+,rate_plan_cd
+,base_amt
+from AW_CDS_DEV_DBO.MRDW_RES_ETL_EADS_VW_JULY2018
+where property_cd='WASJW';"
+query <- gsub(pattern='\n',' ', query)
+ersWASJW <- sqlQuery(awconn,query,stringsAsFactors=FALSE,believeNRows=FALSE)
+ersWASJW <- unite(ersWASJW, "RESKEY",
+c("CONFO_NUM_ORIG_ID","CONFO_NUM_CURR_ID","CREATE_DT"))
+ersWASJW %>% glimpse()
+length(unique(ersWASJW$RESKEY))
+length(unique(ersWASJW))
+table(ersWASJW$RATE_PLAN_CD)
+read.csv("C:\Users\rsolt008\Downloads\raw_yoy_data_mh.csv")
+mh_yoy<-read.csv("C:\\Users\\rsolt008\\Downloads\\raw_yoy_data_mh.csv")
+head(mh_yoy)
+glimpse(mh_yoy)
+mh_yoy<-read.csv("C:\\Users\\rsolt008\\Downloads\\raw_yoy_data_mh.csv",stringsAsFactors = F)
+glimpse(mh_yoy)
+mh_yoy$ageYrs <- 2018-mh_yoy$year_opened
+glimpse(mh_yoy)
+unite(mh_yoy,"Hotel",c("property_nm","marsha"), sep="_")
+mh_yoy <- unite(mh_yoy,"Hotel",c("property_nm","marsha"), sep="_")
+mh_yoy %>% glimpse()
+mh_yoy <- mh_yoy %>% select(-year_opened)
+tibble::column_to_rownames(mh_yoy, Hotel)
+mh_yoy <- tibble::remove_rownames(mh_yoy)
+mh_yoy <- tibble::column_to_rownames(mh_yoy, Hotel)
+mh_yoy <- tibble::column_to_rownames(mh_yoy, "Hotel")
+head(mh_yoy)
+dim(mh_yoy)
+glimpse(mh_yoy)
+glimpse(mh_yoy)
+library(recipes)
+mh_yoy %>% step_dummy(owner_type)
+mh_yoy %>% step_dummy(owner_type) %>% head()
+mh_yoy %>%
+step_dummy(owner_type,mhpt_status) %>%
+prep(training = iris, retain = TRUE)
+mh_yoy %>%
+step_dummy(owner_type,mhpt_status) %>%
+prep(training = mh_yoy, retain = TRUE)
+glimpse(mh_yoy)
+lm(bed_yoy ~ room_yoy + maintenance_yoy)
+lm(bed_yoy ~ room_yoy + maintenance_yoy,
+data = mh_yoy)
+lm1 <- lm(bed_yoy ~ room_yoy + maintenance_yoy,
+data = mh_yoy)
+augment(lm1)
+augment(lm1) %>% glimpse()
+summary(lm1)
+augment(summary(lm1))
+glimpse(lm1)
+lm1 <- augment(lm(bed_yoy ~ room_yoy + maintenance_yoy,
+data = mh_yoy))
+head(lm1)
+library(tibble)
+library(dplyr)
+library(recipes)
+# processing
+mh_yoy<-read.csv("C:\\Users\\rsolt008\\Downloads\\raw_yoy_data_mh.csv",stringsAsFactors = F)
+mh_yoy$ageYrs <- 2018-mh_yoy$year_opened
+mh_yoy <- unite(mh_yoy,"Hotel",c("property_nm","marsha"), sep="_")
+mh_yoy <- mh_yoy %>% select(-year_opened)
+mh_yoy <- tibble::remove_rownames(mh_yoy)
+mh_yoy <- tibble::column_to_rownames(mh_yoy, "Hotel")
+getwd()
+save(mh_yoy,"C:\\Users\\rsolt008\\Downloads\\clean_yoy_data_mh.rdata")
+save(mh_yoy,file="C:\\Users\\rsolt008\\Downloads\\clean_yoy_data_mh.rdata")
+head(mh_yoy)
+head(mh_yoy)
+head(model.matrix(bed_yoy~.1,mh_yoy))
+data("HairEyeColor")
+class(HairEyeColor)
+class(mh_yoy)
+model.matrix()
+?model.matrix
+model.matrix(mh_yoy)
+ref_mh_yoy <- mh_yoy %>% step_dummy(owner_type)
+glimpse(ref_mh_yoy)
+ref_mh_yoy <- mh_yoy %>% step_dummy(owner_type) %>% step_dummy(mhpt_status)
+ref_mh_yoy <- mh_yoy %>% step_dummy(owner_type,mhpt_status)
+ref_mh_yoy <- mh_yoy %>% step_dummy(owner_type,mhpt_status) %>%  prep(training = mh_yoy, retain = TRUE)
+install.packages("dummies")
+library(dummies)
+dummy.data.frame(mh_yoy)
+dummy.data.frame(mh_yoy) %>% glimpse()
+mh_yoy<-dummy.data.frame(mh_yoy)
+# Partition
+runif(nrows(mh_yoy))
+# Partition
+runif(nrow(mh_yoy))
+set.seed(5590)
+p<-runif(nrow(mh_yoy))
+test_p <- p[p<.85]
+dim(test_p)
+length(test_p)
+length(p)
+train_p <- p[p<.85]
+test_p <- p[p>=.85]
+285+54
+mh_yoy_Train <-mh_yoy[train_p, ]
+library(tibble)
+library(dplyr)
+library(dummies)
+# processing --
+mh_yoy<-read.csv("C:\\Users\\rsolt008\\Downloads\\raw_yoy_data_mh.csv",stringsAsFactors = F)
+mh_yoy$ageYrs <- 2018-mh_yoy$year_opened
+mh_yoy <- unite(mh_yoy,"Hotel",c("property_nm","marsha"), sep="_")
+mh_yoy <- mh_yoy %>% select(-year_opened)
+mh_yoy <- tibble::remove_rownames(mh_yoy)
+mh_yoy <- tibble::column_to_rownames(mh_yoy, "Hotel")
+save(mh_yoy,file="C:\\Users\\rsolt008\\Downloads\\clean_yoy_data_mh.rdata")
+## MV LM --
+# create dummy variables
+# comparison of methods in R - https://rsangole.netlify.com/post/dummy-variables-one-hot-encoding/
+mh_yoy<-dummy.data.frame(mh_yoy)
+# Partition
+## 75% of the sample size
+smp_size <- floor(0.75 * nrow(mh_yoy))
+## set the seed to make your partition reproducible
+set.seed(5590)
+train_ind <- sample(seq_len(nrow(mh_yoy)), size = smp_size)
+train <- mh_yoy[mh_yoy, ]
+test <- mh_yoy[-mh_yoy, ]
+# Check for normality, heteroscedasticity, outliers in plots
+# Check fo multi-collinearity
+lm1 <- augment(lm(bed_yoy ~ room_yoy + maintenance_yoy,
+data = mh_yoy))
+# plotting residuals
+ggplot(lm1, aes(x=))
+mh_yoy<-read.csv("C:\\Users\\rsolt008\\Downloads\\raw_yoy_data_mh.csv",stringsAsFactors = F)
+mh_yoy$ageYrs <- 2018-mh_yoy$year_opened
+mh_yoy <- unite(mh_yoy,"Hotel",c("property_nm","marsha"), sep="_")
+mh_yoy <- mh_yoy %>% select(-year_opened)
+mh_yoy <- tibble::remove_rownames(mh_yoy)
+mh_yoy <- tibble::column_to_rownames(mh_yoy, "Hotel")
+save(mh_yoy,file="C:\\Users\\rsolt008\\Downloads\\clean_yoy_data_mh.rdata")
+mh_yoy<-dummy.data.frame(mh_yoy)
+## 75% of the sample size
+smp_size <- floor(0.75 * nrow(mh_yoy))
+set.seed(5590)
+train_ind <- sample(seq_len(nrow(mh_yoy)), size = smp_size)
+train <- mh_yoy[mh_yoy, ]
+test <- mh_yoy[-mh_yoy, ]
+head(mh_yoy)
+glimpse(mh_yoy)
+class(mh_yoy)
+train <- mh_yoy[train_ind, ]
+test <- mh_yoy[-train_ind, ]
+head(train)
+library(tibble)
+library(dplyr)
+library(dummies)
+# processing --
+mh_yoy<-read.csv("C:\\Users\\rsolt008\\Downloads\\raw_yoy_data_mh.csv",stringsAsFactors = F)
+mh_yoy$ageYrs <- 2018-mh_yoy$year_opened
+mh_yoy <- unite(mh_yoy,"Hotel",c("property_nm","marsha"), sep="_")
+mh_yoy <- mh_yoy %>% select(-year_opened)
+mh_yoy <- tibble::remove_rownames(mh_yoy)
+mh_yoy <- tibble::column_to_rownames(mh_yoy, "Hotel")
+glimpse(mh_yoy)
+library(tibble)
+library(dplyr)
+library(dummies)
+# processing --
+mh_yoy<-read.csv("C:\\Users\\rsolt008\\Downloads\\raw_yoy_data_mh.csv",stringsAsFactors = F)
+mh_yoy$ageMI <- 2018-mh_yoy$year_opened
+mh_yoy <- unite(mh_yoy,"Hotel",c("property_nm","marsha"), sep="_")
+mh_yoy <- mh_yoy %>% select(-year_opened)
+mh_yoy <- tibble::remove_rownames(mh_yoy)
+mh_yoy <- tibble::column_to_rownames(mh_yoy, "Hotel")
+save(mh_yoy,file="C:\\Users\\rsolt008\\Downloads\\clean_yoy_data_mh.rdata")
+head(mh_yoy)
+# Check for normality, heteroscedasticity, outliers in plots
+ggplot(mh_yoy, (x=staff_yoy, y=bed_yoy, colour="mhpt_status")) +
+geom_point()
+library(ggplot2)
+# Check for normality, heteroscedasticity, outliers in plots
+ggplot(mh_yoy, (x=staff_yoy, y=bed_yoy, colour="mhpt_status")) +
+geom_point()
+# Check for normality, heteroscedasticity, outliers in plots
+ggplot(mh_yoy, (x=staff_yoy, y=bed_yoy)) +
+geom_point(colour=mhpt_status)
+# Check for normality, heteroscedasticity, outliers in plots
+ggplot(mh_yoy, (x=staff_yoy, y=bed_yoy)) +
+geom_point()
+# Check for normality, heteroscedasticity, outliers in plots
+ggplot(mh_yoy, aes(x=staff_yoy, y=bed_yoy)) +
+geom_point()
+glimpse(mh_yoy)
+# Check for normality, heteroscedasticity, outliers in plots
+ggplot(mh_yoy, aes(x=staff_yoy, y=bed_yoy)) +
+geom_point(colour=mhpt_status)
+# Check for normality, heteroscedasticity, outliers in plots
+ggplot(mh_yoy, aes(x=staff_yoy, y=bed_yoy, group=mhpt_status)) +
+geom_point(colour=mhpt_status)
+# Check for normality, heteroscedasticity, outliers in plots
+ggplot(mh_yoy, aes(x=staff_yoy, y=bed_yoy, colour=mhpt_status)) +
+geom_point()
+# Check for normality, heteroscedasticity, outliers in plots
+ggplot(mh_yoy, aes(x=staff_yoy, y=bed_yoy, colour=mhpt_status)) +
+geom_point() + geom_smooth(method="lm")
+# Check for normality, heteroscedasticity, outliers in plots
+ggplot(mh_yoy, aes(x=staff_yoy, y=bed_yoy, colour=mhpt_status)) +
+geom_point() + geom_smooth(method="lm",se = F)
+glimpse(mh_yoy)
+ggplot(mh_yoy, aes(x=staff_yoy, y=bed_yoy, colour=owner_type)) +
+geom_point() + geom_smooth(method="lm",se = F)
+mtcars
+mtcars %>%
+gather(-mpg, -hp, -cyl, key = "var", value = "value") %>% head()
+mh_yoy %>%
+gather(-bed_yoy,-mhpt_status,-owner_type, key="var", value="value")
+mh_yoy %>%
+gather(-bed_yoy,-mhpt_status,-owner_type, key="var", value="value") %>%
+ggplot(aes(x=value, y=bed_yoy, colour=mhpt_status, shape=factor(owner_type))) +
+goem_point()
+mh_yoy %>%
+gather(-bed_yoy,-mhpt_status,-owner_type, key="var", value="value") %>%
+ggplot(aes(x=value, y=bed_yoy, colour=mhpt_status, shape=factor(owner_type))) +
+geom_point()
+mh_yoy %>%
+gather(-bed_yoy,-mhpt_status,-owner_type, key="var", value="value") %>%
+ggplot(aes(x=value, y=bed_yoy, colour=mhpt_status, shape=factor(owner_type))) +
+geom_point() +
+facet_wrap(~var, scales= "free")
+mh_yoy %>%
+gather(-bed_yoy,-mhpt_status,-owner_type, key="var", value="value") %>%
+ggplot(aes(x=value, y=bed_yoy, colour=mhpt_status, shape=factor(owner_type))) +
+geom_point() +
+facet_wrap(~var, scales= "fixed")
+mh_yoy %>%
+gather(-bed_yoy,-mhpt_status,-owner_type, key="var", value="value") %>%
+ggplot(aes(x=value, y=bed_yoy, colour=mhpt_status, shape=factor(owner_type))) +
+geom_point() +
+facet_wrap(~var, scales= "free")
+summary(mh_yoy$clean_yoy)
+# processing --
+mh_yoy<-read.csv("C:\\Users\\rsolt008\\Downloads\\raw_yoy_data_mh.csv",stringsAsFactors = F)
+summary(mh_yoy$clean_yoy)
+library(car)
+library(car)
+## MV LM --
+# Visualizaiton
+# Check for normality, heteroscedasticity, outliers in plots
+# multiple plots
+mh_yoy %>%
+gather(-bed_yoy,-mhpt_status,-owner_type, key="var", value="value") %>%
+ggplot(aes(x=value, y=bed_yoy, colour=mhpt_status, shape=factor(owner_type))) +
+geom_point() +
+facet_wrap(~var, scales= "free")
+# processing --
+mh_yoy<-read.csv("C:\\Users\\rsolt008\\Downloads\\raw_yoy_data_mh.csv",stringsAsFactors = F)
+mh_yoy$ageMI <- 2018-mh_yoy$year_opened
+mh_yoy <- unite(mh_yoy,"Hotel",c("property_nm","marsha"), sep="_")
+mh_yoy <- mh_yoy %>% select(-year_opened)
+mh_yoy <- tibble::remove_rownames(mh_yoy)
+mh_yoy <- tibble::column_to_rownames(mh_yoy, "Hotel")
+save(mh_yoy,file="C:\\Users\\rsolt008\\Downloads\\clean_yoy_data_mh.rdata")
+# Check for normality, heteroscedasticity, outliers in plots
+# multiple plots
+mh_yoy %>%
+gather(-bed_yoy,-mhpt_status,-owner_type, key="var", value="value") %>%
+ggplot(aes(x=value, y=bed_yoy, colour=mhpt_status, shape=factor(owner_type))) +
+geom_point() +
+facet_wrap(~var, scales= "free")
+# Check for normality, heteroscedasticity, outliers in plots
+# multiple plots
+mh_yoy %>%
+gather(-bed_yoy,-mhpt_status,-owner_type, key="var", value="value") %>%
+ggplot(aes(x=value, y=bed_yoy, colour=mhpt_status, shape=factor(owner_type))) +
+geom_point() +
+geom_hline(yintercept = 0) +
+facet_wrap(~var, scales= "free")
+# Check for normality, heteroscedasticity, outliers in plots
+# multiple plots
+mh_yoy %>%
+gather(-bed_yoy,-mhpt_status,-owner_type, key="var", value="value") %>%
+ggplot(aes(x=value, y=bed_yoy, colour=mhpt_status, shape=factor(owner_type))) +
+geom_point(alpha(0.5)) +
+geom_hline(yintercept = 0) +
+facet_wrap(~var, scales= "free")
+# Check for normality, heteroscedasticity, outliers in plots
+# multiple plots
+mh_yoy %>%
+gather(-bed_yoy,-mhpt_status,-owner_type, key="var", value="value") %>%
+ggplot(aes(x=value, y=bed_yoy, colour=mhpt_status, shape=factor(owner_type))) +
+geom_point(aes(alpha=0.5)) +
+geom_hline(yintercept = 0) +
+facet_wrap(~var, scales= "free")
+# Check for normality, heteroscedasticity, outliers in plots
+# multiple plots
+mh_yoy %>%
+gather(-bed_yoy,-mhpt_status,-owner_type, key="var", value="value") %>%
+ggplot(aes(x=value, y=bed_yoy, colour=owner_type, shape=factor(owner_type))) +
+geom_point(aes(alpha=0.5)) +
+geom_hline(yintercept = 0) +
+facet_wrap(~var, scales= "free")
+head(mh_yoy)
+mh_yoy<-dummy.data.frame(mh_yoy)
+head(mh_yoy)
+mh_yoy <- tibble::column_to_rownames(mh_yoy, "Hotel")
+library(tibble)
+library(dplyr)
+library(dummies)
+library(car)
+# processing --
+mh_yoy<-read.csv("C:\\Users\\rsolt008\\Downloads\\raw_yoy_data_mh.csv",stringsAsFactors = F)
+mh_yoy$ageMI <- 2018-mh_yoy$year_opened
+mh_yoy <- unite(mh_yoy,"Hotel",c("property_nm","marsha"), sep="_")
+mh_yoy <- mh_yoy %>% select(-year_opened)
+mh_yoy <- tibble::remove_rownames(mh_yoy)
+mh_yoy <- tibble::column_to_rownames(mh_yoy, "Hotel")
+save(mh_yoy,file="C:\\Users\\rsolt008\\Downloads\\clean_yoy_data_mh.rdata")
+mh_yoy %>% names()
+# Check fo multi-collinearity
+car::vif(mh_yoy %>% dplyr::select(-c(bed_yoy,mhpt_status,owner_type)))
+---
+title: "WBI Similarity Analysis"
+output:
+flexdashboard::flex_dashboard:
+orientation: columns
+vertical_layout: fill
+runtime: shiny
+---
+Nearest Neigbors
+=====================================
+Column
+-------------------------------------
+### WBI Selection
+```{r}
+```
+### Notes
+```{r}
+```
+Column
+-------------------------------------
+### Nearest-Neighbors Map
+Time-Series Clusters
+=====================================
+### Clusters
+```{r}
+```
+### Notes
+This is where there will be notes. This is where there will be notes. This is where there will be notes. This is where there will be notes. This is where there will be notes. This is where there will be notes. This is where there will be notes.
+Raw Data
+=====================================
+### Raw Data
+```{r}
+setwd("C:\\Users\\rsolt008\\Documents\\personal git\\WorldBank Shiny App\\")
+load("worldBank_raw_wide.rdata")
+library(DT)
+DT::datatable(worldBank_raw_wide, options = list(
+bPaginate = TRUE
+))
+library(dplyr)
+library(tmap) # for mapping
+library(fields) # a faster way to compute dist matrixes, output is matrix, not 'dist'
+library(reshape) # necessary to transform distance matrix into long format
+library(sf) # needed to code dataframes into 'sf' format (st_as_st)
+# ordering
+load("worldBank_raw_wide.rdata")
+worldBank_raw_wide <- worldBank_raw_wide %>% arrange(year,country)
+## adding in 'missing' countries
+load("africa_geo.rdata")
+#missing_countries <- africa_geo %>% filter(name %in%c("Mauritania","Central African Rep.",
+#"S. Sudan","Somalia","Eritrea","W. Sahara")) %>% dplyr::select()
+# Downloading by indicator
+#dat3 = WDI(indicator=Indicators, country = missing_countries$iso_a3, start=1991, end=2015)
+# splitting apart by year --
+worldBank_raw_long <- split(worldBank_raw_wide,worldBank_raw_wide$year)
+# calculating distance between all countries
+dist_Long_func <- function(df){
+# scaling
+df <- data.frame(df[1:3], apply(df[,4:7], 2, base::scale))
+# calculating distances in distance matrix
+df_1 <- fields::rdist(df[ ,4:7])
+# adding country names
+row.names(df_1) <- df$country
+colnames(df_1) <- df$country
+# transforming into long format
+long_dist <- reshape::melt(df_1)[melt(upper.tri(df_1))$value, ]
+#long_dist <- reshape::melt(df_1)[melt(df_1)$value, ]
+names(long_dist) <- c("Country_Focus","Country_Comp","Distance")
+long_dist
+}
+# applying to each year, combining in a list
+dist_list<-lapply(worldBank_raw_long, dist_Long_func)
+# combining all elements in list into one long dataframe
+dist_df <- do.call("rbind", dist_list)
+# Pulling Row name into df as a year
+dist_df <- tibble::rownames_to_column(dist_df,"Year")
+dist_df$Year <- substr(dist_df$Year,start = 1,stop = 4)
+rm(dist_list)
+# renaming and exporting into nearest-neighbors dataset
+nn_distances_long <- dist_df
+# switching Country_Focus, Country_Comp variable types to character
+nn_distances_long$Country_Focus <- as.character(nn_distances_long$Country_Focus)
+nn_distances_long$Country_Comp <- as.character(nn_distances_long$Country_Comp)
+# duplicating records and switching focus, comp columns
+nn_distances_long_dupe <- nn_distances_long
+names(nn_distances_long_dupe) <- c("Year","Country_Comp","Country_Focus","Distance")
+nn_distances_long_dupe <- nn_distances_long_dupe[ ,c(1,3,2,4)]
+# binding the two
+nn_distances_long <- rbind(nn_distances_long, nn_distances_long_dupe)
+# Attaching geo graphic shape file
+# loading
+load(file="africa_geo.rdata")
+# the problem with this join, is that not all Countries are used in metric comparison,
+# notbaly not Libya, Central Africa Republic, the Horn, etc
+nn_dist_viz <- left_join(nn_distances_long,africa_geo,by=c("Country_Comp"="name"))
+nn_dist_viz <- st_as_sf(nn_dist_viz)
+save(nn_dist_viz,file = "NN_dataset.rdata")
+head(nn_dist_viz)
+glimpse(nn_dist_viz)
+library(shiny)
+library(ggplot2)
+library(RColorBrewer)
+library(dplyr)
+library(scales)
+library(rworldmap)
+library(gridExtra)
+load("C:\\Users\\rsolt008\\Documents\\personal git\\Population Pyramid\\pop_pyrd.rdata")
+load("C:\\Users\\rsolt008\\Documents\\personal git\\Population Pyramid\\test_clust.rdata")
+pop_pyrd<-left_join(pop_pyrd,clust_assignments_out)
+#colourPalette <- brewer.pal(5,'Greens')
+# creating a character list of country varaibles for selection
+clist<-as.list(as.character(unique(pop_pyrd$Country.Name)))
+names(clist)<-clist
+setwd("C:\\Users\\rsolt008\\Documents\\personal git\\Population Pyramid")
+runApp()
+pop_pyrd %>% glimpse()
+setwd("C:\\Users\\rsolt008\\Documents\\personal git\\WorldBank Shiny App\\")
+list.files()
+load("NN_dataset.rdata")
+nn_dist_viz[ which ( nn_dist_viz$Country_Focus==input$Variable), ]
+nn_dist_viz[ which ( nn_dist_viz$Country_Focus=="Angola"), ]
+nn_dist_viz[ which ( nn_dist_viz$Country_Focus=="Angola"), ] %>% dim()
+library(shiny)
+library(ggplot2)
+library(RColorBrewer)
+library(dplyr)
+library(scales)
+library(rworldmap)
+library(gridExtra)
+load("C:\\Users\\rsolt008\\Documents\\personal git\\Population Pyramid\\pop_pyrd.rdata")
+load("C:\\Users\\rsolt008\\Documents\\personal git\\Population Pyramid\\test_clust.rdata")
+pop_pyrd<-left_join(pop_pyrd,clust_assignments_out)
+#colourPalette <- brewer.pal(5,'Greens')
+# creating a character list of country varaibles for selection
+clist<-as.list(as.character(unique(pop_pyrd$Country.Name)))
+names(clist)<-clist
+setwd("C:\\Users\\rsolt008\\Documents\\personal git\\Population Pyramid")
+runApp()
+nn_dist_viz$Year %>% range()
+?animationOptions
+library(dplyr)
+library(tmap) # for mapping
+library(fields) # a faster way to compute dist matrixes, output is matrix, not 'dist'
+library(reshape) # necessary to transform distance matrix into long format
+library(sf) # needed to code dataframes into 'sf' format (st_as_st)
+library(shiny) #
+setwd("C:\\Users\\rsolt008\\Documents\\personal git\\WorldBank Shiny App\\")
+load("NN_dataset.rdata")
+runApp()
+library(dplyr)
+library(tmap) # for mapping
+library(fields) # a faster way to compute dist matrixes, output is matrix, not 'dist'
+library(reshape) # necessary to transform distance matrix into long format
+library(sf) # needed to code dataframes into 'sf' format (st_as_st)
+library(shiny) #
+setwd("C:\\Users\\rsolt008\\Documents\\personal git\\WorldBank Shiny App\\")
+load("NN_dataset.rdata")
+runApp()
+setwd("C:\\Users\\rsolt008\\Documents\\personal git\\WorldBank Shiny App\\Dashboard/")
+load("C:\\Users\\rsolt008\\Documents\\personal git\\WorldBank Shiny App\\NN_dataset.rdata")
+runApp()
+pop_pyrd<-left_join(pop_pyrd,clust_assignments_out)
+# making a better map
+# https://geocompr.robinlovelace.net/adv-map.html
+library(shiny)
+library(ggplot2)
+library(RColorBrewer)
+library(dplyr)
+library(scales)
+library(rworldmap)
+library(gridExtra)
+load("C:\\Users\\rsolt008\\Documents\\personal git\\Population Pyramid\\pop_pyrd.rdata")
+load("C:\\Users\\rsolt008\\Documents\\personal git\\Population Pyramid\\test_clust.rdata")
+pop_pyrd<-left_join(pop_pyrd,clust_assignments_out)
+#colourPalette <- brewer.pal(5,'Greens')
+# creating a character list of country varaibles for selection
+clist<-as.list(as.character(unique(pop_pyrd$Country.Name)))
+names(clist)<-clist
+setwd("C:\\Users\\rsolt008\\Documents\\personal git\\Population Pyramid")
+clist
+library(dplyr)
+library(tmap) # for mapping
+library(fields) # a faster way to compute dist matrixes, output is matrix, not 'dist'
+library(reshape) # necessary to transform distance matrix into long format
+library(sf) # needed to code dataframes into 'sf' format (st_as_st)
+library(shiny) #
+setwd("C:\\Users\\rsolt008\\Documents\\personal git\\WorldBank Shiny App\\Dashboard/")
+load("C:\\Users\\rsolt008\\Documents\\personal git\\WorldBank Shiny App\\NN_dataset.rdata")
+clist<-unique(nn_dist_viz$Country_Focus)
+runApp()
+runApp()
