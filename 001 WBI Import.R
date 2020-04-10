@@ -70,6 +70,9 @@ Indicators <- c("NY.GDP.PCAP.PP.CD","SP.DYN.CBRT.IN","EG.ELC.ACCS.ZS","SL.UEM.TO
 dat = WDI(indicator=Indicators, country = af_country_list$iso2c, start=1991, end=2016)
 
 
+
+#
+
 # Processing
 
 # Checking for missing values 
