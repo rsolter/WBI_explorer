@@ -97,3 +97,10 @@ for(i in 1:length(ao2_fill)){
 }
 
 ao_f <- cbind(ao[,1:3],ao2_fill)
+
+
+
+
+
+WDI_raw_60_19 <-WDI(country = af_country_list$iso2c,indicator = WDI_dict[,1], start=1960,end=2019)
+save(WDI_raw_60_19,file="Datasets/WDI_raw_60_19.rdata")
