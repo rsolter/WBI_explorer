@@ -4,6 +4,3 @@
 *.docx
 *.zip
 .Rproj.user
-
-#.ipynd_checkpoints
-*checkpoint.ipynb
