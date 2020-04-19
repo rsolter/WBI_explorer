@@ -15,7 +15,7 @@ library(imputeTS)
 
 ## Shape File ----
 
-# Gathering African country names for querying WDI 
+# Gathering African country names for querying WDI
 tmp_World_names <- WDI(indicator=c("NY.GDP.PCAP.PP.CD"), start=1991, end=2015)
 tmp_World_names <- tmp_World_names %>% select(iso2c,country) %>% unique()
 
@@ -32,7 +32,7 @@ africanCountries <- c("Algeria","Angola","Benin","Botswana",
                       "Mozambique","Namibia","Niger","Nigeria",
                       "Rwanda","Senegal","Seychelles","Sierra Leone","Somalia",
                       "South Africa","South Sudan","Sudan","Swaziland","Tanzania",
-                      "Togo","Tunisia","Uganda","Zambia","Zimbabwe") 
+                      "Togo","Tunisia","Uganda","Zambia","Zimbabwe")
 
 af_country_list <- tmp_World_names %>% filter(country%in%africanCountries)
 
@@ -50,9 +50,9 @@ World$name <- ifelse(World$name=="Dem. Rep. Congo","Congo, Dem. Rep.",
                                    ifelse(World$name=="Eq. Guinea","Equatorial Guinea",
                                           ifelse(World$name=="Gambia","Gambia, The",World$name)))))
 
-# subsetting down to necessary columns as well as african countries above, and those missing 
-africa_geo <- World %>% 
-  dplyr::select(iso_a3,name,geometry) %>% 
+# subsetting down to necessary columns as well as african countries above, and those missing
+africa_geo <- World %>%
+  dplyr::select(iso_a3,name,geometry) %>%
   filter(name%in%c(africanCountries,"Libya","Mauritania","Central African Rep.",
                    "S. Sudan","Zimbabwe","Somalia","Eritrea","Djibouti","W. Sahara"))
 
@@ -69,16 +69,15 @@ save(africa_geo,file="Datasets/africa_geo.rdata")
 WDI_dict <- WDIsearch()
 
 # Selecting random subset of indicators
-Indicators <- c("SI.DST.FRST.20","NY.GDP.PCAP.KD.ZG","EG.ELC.ACCS.ZS","NY.GDP.MKTP.CD")
-  # Income share held by lowest 20% - NY.GDP.PCAP.PP.CD
+Indicators <- c("SP.DYN.LE00.IN","NY.GDP.PCAP.KD.ZG","NY.GDP.MKTP.CD")
+  # Life exepctacy at birth - SP.DYN.LE00.IN
   # GDP per capita growth (annual %) - NY.GDP.PCAP.KD.ZG
-  # Access to electricity (% of population) - EG.ELC.ACCS.ZS
   # GDP (current US$) - NY.GDP.MKTP.CD
 
 
 # Downloading by indicator for the last 50 years
 dat <- WDI(indicator=Indicators, country = af_country_list$iso2c, start=1960, end=2017)
-dat <- dat %>% select(-iso2c) 
+dat <- dat %>% select(-iso2c)
 rm(af_country_list)
 
 # There is a lot of missing data - %32%
@@ -93,17 +92,17 @@ WDI <- dat %>% pivot_longer(-c(country,year),names_to = "metric",values_to = "va
 nested_WDI <- WDI %>% group_by(country,metric) %>% nest()
 
 for(k in nrow(nested_WDI)){
-  
+
   tmp_series <- nested_WDI$data[[k]]
   tmp_series <- as.ts(tmp_series)
-  
+
   imputed_tmp_series <- imputeTS::na_interpolation(tmp_series)
-  
+
   tmp_series2 <- as.data.frame(imputed_tmp_series)
-  
+
   nested_WDI$data[[k]] <- tmp_series2
-  
-} 
+
+}
 
 processed_WDI <- nested_WDI %>% unnest(cols = c(data))
 
@@ -117,16 +116,28 @@ View(yearlyNAs) # Start to collect data for the majority of countries in the 90'
 
 # NA count by country
 countryNAs<- processed_WDI %>% group_by(country) %>% summarise(sumNA=sum(is.na(value)))
-View(countryNAs) 
+View(countryNAs)
+
 
 # NA count by Metric
 metricNAs<- processed_WDI %>% group_by(metric) %>% summarise(sumNA=sum(is.na(value)))
-View(metricNAs) 
+View(metricNAs)
 
 # NA Count by metric over time
 x<-processed_WDI %>% group_by(metric,year) %>% summarise(sumNA=sum(is.na(value)))
 ggplot(x, aes(x=year,y=sumNA, group=metric)) + geom_line() + facet_wrap(facets = "metric")
 
+# NA Count by country over time
+y<-processed_WDI %>% group_by(country,year) %>% summarise(sumNA=sum(is.na(value)))
+ggplot(y, aes(x=year,y=sumNA, group=country)) + geom_line() + facet_wrap(facets = "country")
+
+
+
+# Filtering out data past 1990
+processed_WDI <- processed_WDI %>% filter(year>1990)
+processed_WDI %>% filter(is.na(value))
+
+# Filtering out select countries
+processed_WDI <- processed_WDI %>% filter(!country%in%c("Libya","Djibouti","Eritrea","Liberia","Somalia","South Sudan"))
+
 save(processed_WDI,file="Datasets/processed_WDI.rdata")
-
-
