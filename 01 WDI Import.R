@@ -2,14 +2,15 @@
 
 ## Returns two datasets:
 
-#   africa_geo - a collection of shape files for all African nations
-#   
+#   africa_geo.rdata - a collection of shape files for all African nations
+#   processed_WDI.rdata - historical data for select world bank indiators. processed to replace missing values with most recently observed numbers
 
 
 library(WDI)
 library(tidyverse)
 library(tmap)
 library(zoo)
+library(imputeTS)
 
 
 ## Shape File ----
@@ -55,7 +56,7 @@ africa_geo <- World %>%
   filter(name%in%c(africanCountries,"Libya","Mauritania","Central African Rep.",
                    "S. Sudan","Zimbabwe","Somalia","Eritrea","Djibouti","W. Sahara"))
 
-rm(World)
+rm(World,africanCountries)
 save(africa_geo,file="Datasets/africa_geo.rdata")
 
 
@@ -64,43 +65,68 @@ save(africa_geo,file="Datasets/africa_geo.rdata")
 
 
 # Indicators can be searched for by keyword
-WDIsearch('gdp')[1:10,]
+#WDIsearch('gdp')[1:10,]
 WDI_dict <- WDIsearch()
 
 # Selecting random subset of indicators
 Indicators <- c("SI.DST.FRST.20","NY.GDP.PCAP.KD.ZG","EG.ELC.ACCS.ZS","NY.GDP.MKTP.CD")
-# Income share held by lowest 20% - NY.GDP.PCAP.PP.CD
-# GDP per capita growth (annual %) - NY.GDP.PCAP.KD.ZG
-# Access to electricity (% of population) - EG.ELC.ACCS.ZS
-# GDP (current US$) - NY.GDP.MKTP.CD
+  # Income share held by lowest 20% - NY.GDP.PCAP.PP.CD
+  # GDP per capita growth (annual %) - NY.GDP.PCAP.KD.ZG
+  # Access to electricity (% of population) - EG.ELC.ACCS.ZS
+  # GDP (current US$) - NY.GDP.MKTP.CD
 
 
-# Downloading by indicator for the last 30 years
-dat = WDI(indicator=Indicators, country = af_country_list$iso2c, start=1989, end=2019)
+# Downloading by indicator for the last 50 years
+dat <- WDI(indicator=Indicators, country = af_country_list$iso2c, start=1960, end=2017)
+dat <- dat %>% select(-iso2c) 
+rm(af_country_list)
 
-
-
-# Using 'na.lofc' from zoo to replaces NAs with previous value recorded
-ao <- dat %>% filter(iso2c=="AO")
-ao2 <- ao[,4:ncol(ao)]
-ao2_fill <- apply(ao2,2,na.locf)
-
-desired_length <- nrow(ao2)
-
-for(i in 1:length(ao2_fill)){
-  vec_length<-(length(ao2_fill[[i]]))
-  if (vec_length<desired_length){
-    padding <- desired_length-vec_length
-    ao2_fill[[i]] <- c(rep(NA,padding),ao2_fill[[i]])
-  } else 
-    ao2_fill[[i]] <- ao2_fill[[i]]
-}
-
-ao_f <- cbind(ao[,1:3],ao2_fill)
+# There is a lot of missing data - %32%
+(sum(is.na(dat))/(dim(dat)[1]*dim(dat)[2]))*100
 
 
 
+# Imputing missing data using ImputeTS and simple interpolation
+
+WDI <- dat %>% pivot_longer(-c(country,year),names_to = "metric",values_to = "value")
+
+nested_WDI <- WDI %>% group_by(country,metric) %>% nest()
+
+for(k in nrow(nested_WDI)){
+  
+  tmp_series <- nested_WDI$data[[k]]
+  tmp_series <- as.ts(tmp_series)
+  
+  imputed_tmp_series <- imputeTS::na_interpolation(tmp_series)
+  
+  tmp_series2 <- as.data.frame(imputed_tmp_series)
+  
+  nested_WDI$data[[k]] <- tmp_series2
+  
+} 
+
+processed_WDI <- nested_WDI %>% unnest(cols = c(data))
+
+# Missing data is down to 12%
+(sum(is.na(processed_WDI))/(dim(processed_WDI)[1]*dim(processed_WDI)[2]))*100
 
 
-WDI_raw_60_19 <-WDI(country = af_country_list$iso2c,indicator = WDI_dict[,1], start=1960,end=2019)
-save(WDI_raw_60_19,file="Datasets/WDI_raw_60_19.rdata")
+# NA count by year
+yearlyNAs<- processed_WDI %>% group_by(year) %>% summarise(sumNA=sum(is.na(value)))
+View(yearlyNAs) # Start to collect data for the majority of countries in the 90's
+
+# NA count by country
+countryNAs<- processed_WDI %>% group_by(country) %>% summarise(sumNA=sum(is.na(value)))
+View(countryNAs) 
+
+# NA count by Metric
+metricNAs<- processed_WDI %>% group_by(metric) %>% summarise(sumNA=sum(is.na(value)))
+View(metricNAs) 
+
+# NA Count by metric over time
+x<-processed_WDI %>% group_by(metric,year) %>% summarise(sumNA=sum(is.na(value)))
+ggplot(x, aes(x=year,y=sumNA, group=metric)) + geom_line() + facet_wrap(facets = "metric")
+
+save(processed_WDI,file="Datasets/processed_WDI.rdata")
+
+
