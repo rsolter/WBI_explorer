@@ -69,10 +69,11 @@ save(africa_geo,file="Datasets/africa_geo.rdata")
 WDI_dict <- WDIsearch()
 
 # Selecting random subset of indicators
-Indicators <- c("SP.DYN.LE00.IN","NY.GDP.PCAP.KD.ZG","NY.GDP.MKTP.CD")
-  # Life exepctacy at birth - SP.DYN.LE00.IN
-  # GDP per capita growth (annual %) - NY.GDP.PCAP.KD.ZG
+Indicators <- c("SP.DYN.LE00.IN","NY.GDP.MKTP.CD","SI.POV.GINI","IT.CEL.SETS.P2")
+  # Life expectancy at birth - SP.DYN.LE00.IN
   # GDP (current US$) - NY.GDP.MKTP.CD
+  # Gini Coefficient - SI.POV.GINI
+  # Mobile cell subscriptions per 100 people - IT.CEL.SETS.P2
 
 
 # Downloading by indicator for the last 50 years
@@ -106,38 +107,44 @@ for(k in nrow(nested_WDI)){
 
 processed_WDI <- nested_WDI %>% unnest(cols = c(data))
 
-# Missing data is down to 12%
-(sum(is.na(processed_WDI))/(dim(processed_WDI)[1]*dim(processed_WDI)[2]))*100
+
+# Handling NA values ----
+
+  # Missing data is down to 12%
+  (sum(is.na(processed_WDI))/(dim(processed_WDI)[1]*dim(processed_WDI)[2]))*100
+  
+  
+  # NA count by year
+  yearlyNAs<- processed_WDI %>% group_by(year) %>% summarise(sumNA=sum(is.na(value)))
+  View(yearlyNAs) # Start to collect data for the majority of countries in the 90's
+  
+  # NA count by country
+  countryNAs<- processed_WDI %>% group_by(country) %>% summarise(sumNA=sum(is.na(value)))
+  View(countryNAs)
+  
+  
+  # NA count by Metric
+  metricNAs<- processed_WDI %>% group_by(metric) %>% summarise(sumNA=sum(is.na(value)))
+  View(metricNAs)
+  
+  # NA Count by metric over time
+  x<-processed_WDI %>% group_by(metric,year) %>% summarise(sumNA=sum(is.na(value)))
+  ggplot(x, aes(x=year,y=sumNA, group=metric)) + geom_line() + facet_wrap(facets = "metric")
+  
+  # NA Count by country over time
+  y<-processed_WDI %>% group_by(country,year) %>% summarise(sumNA=sum(is.na(value)))
+  ggplot(y, aes(x=year,y=sumNA, group=country)) + geom_line() + facet_wrap(facets = "country")
+  
+  
+  
+  # Filtering out data past 1990
+  processed_WDI <- processed_WDI %>% filter(year>1990)
+  processed_WDI %>% filter(is.na(value))
+  
+  # Filtering out select countries
+  processed_WDI <- processed_WDI %>% filter(!country%in%c("Libya","Djibouti","Eritrea","Liberia","Somalia","South Sudan"))
 
 
-# NA count by year
-yearlyNAs<- processed_WDI %>% group_by(year) %>% summarise(sumNA=sum(is.na(value)))
-View(yearlyNAs) # Start to collect data for the majority of countries in the 90's
-
-# NA count by country
-countryNAs<- processed_WDI %>% group_by(country) %>% summarise(sumNA=sum(is.na(value)))
-View(countryNAs)
-
-
-# NA count by Metric
-metricNAs<- processed_WDI %>% group_by(metric) %>% summarise(sumNA=sum(is.na(value)))
-View(metricNAs)
-
-# NA Count by metric over time
-x<-processed_WDI %>% group_by(metric,year) %>% summarise(sumNA=sum(is.na(value)))
-ggplot(x, aes(x=year,y=sumNA, group=metric)) + geom_line() + facet_wrap(facets = "metric")
-
-# NA Count by country over time
-y<-processed_WDI %>% group_by(country,year) %>% summarise(sumNA=sum(is.na(value)))
-ggplot(y, aes(x=year,y=sumNA, group=country)) + geom_line() + facet_wrap(facets = "country")
-
-
-
-# Filtering out data past 1990
-processed_WDI <- processed_WDI %>% filter(year>1990)
-processed_WDI %>% filter(is.na(value))
-
-# Filtering out select countries
-processed_WDI <- processed_WDI %>% filter(!country%in%c("Libya","Djibouti","Eritrea","Liberia","Somalia","South Sudan"))
-
+# Export ----
+  
 save(processed_WDI,file="Datasets/processed_WDI.rdata")

@@ -1,12 +1,20 @@
+library(tidyverse)
+library(cluster)
+
 load(file="Datasets/processed_WDI.rdata")
 
+
+# https://www.brodrigues.co/blog/2019-10-12-cluster_ts/
+# http://ofdataandscience.blogspot.com/2013/03/capital-bikeshare-time-series-clustering.html
+# https://stats.stackexchange.com/questions/131281/dynamic-time-warping-clustering
+# https://github.com/SteffenMoritz/imputeTS
 
 # Steps
 
 # Break out into dfs for each metric
 # run kmeans
 # test 1-5 clusters
-# elbow test
+# elbow test/silhouette test
 # finalize kmeans
 
 nested_metrics <- processed_WDI %>% group_by(metric) %>% nest() %>% mutate(plot=NA,clusterData=NA)
@@ -22,19 +30,23 @@ for (u in 1:nrow(nested_metrics)){
   tmp_metric_wide <- tmp_metric_data %>% spread(year,value)
   
   
+  #Silhouette analysis for determining the number of clusters
+  asw <- numeric(20)
+  for (k in 2:20)
+    asw[[k]] <- cluster::pam(tmp_metric_wide, k) $ silinfo $ avg.width
+  k.best <- which.max(asw)
   
-  ## Code for running elbow method to determine ideal number of clusters
   
-#  wss <- map_dbl(1:5, ~{kmeans(select(tmp_metric_wide,-country), ., nstart=50,iter.max = 15 )$tot.withinss})
-#  n_clust <- 1:5
-#  elbow_df <- as.data.frame(cbind("n_clust" = n_clust, "wss" = wss))
-#  ggplot(elbow_df) + geom_line(aes(y = wss, x = n_clust), colour = "#82518c") + theme_minimal() # will use 3
+  ## Code for running elbow method to determine ideal number of clusters -- MANUAL
+  #  wss <- map_dbl(1:5, ~{kmeans(select(tmp_metric_wide,-country), ., nstart=50,iter.max = 15 )$tot.withinss})
+  #  n_clust <- 1:5
+  #  elbow_df <- as.data.frame(cbind("n_clust" = n_clust, "wss" = wss))
+  #  ggplot(elbow_df) + geom_line(aes(y = wss, x = n_clust), colour = "#82518c") + theme_minimal() # will use 3
  
-  
-  
-  
+
+
   # Running code with 3 clusters for now
-  clusters <- kmeans(select(tmp_metric_wide, -country), centers = 3)
+  clusters <- kmeans(select(tmp_metric_wide, -country), centers = k.best)
   
   # Average time serie for clusters
   centers <- rownames_to_column(as.data.frame(clusters$centers), "cluster")
@@ -59,9 +71,7 @@ for (u in 1:nrow(nested_metrics)){
   }
   
   # Cluster info will form the caption for the chart
-  cluster_info <- paste(clust_countries$text[[1]],"\n",
-                        clust_countries$text[[2]],"\n",
-                        clust_countries$text[[3]],sep="")
+  cluster_info <- paste(clust_countries$text,collapse = '\n')[[1]]
   
   
   cluster_data <- data.frame(cluster_id=1:(clusters$size %>% length()),
