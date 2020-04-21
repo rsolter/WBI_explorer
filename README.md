@@ -9,7 +9,7 @@ This R Shiny app allows users to explore development metrics of African nations 
 - Financial Sector (54 Indicators)
 - Gender (21 Indicators)
 - Health (227 Indicators)
-- Infrastructure (41 Indicators) 
+- Infrastructure (41 Indicators)
 - Poverty (24 Indicators)
 - Private Sector & Trade (173 Indicators)
 - Public Sector (83 Indicators)
@@ -20,7 +20,3 @@ Note that not all records are complete with notable national omissions for Centr
 
 **Analysis**
 Along with exploring the dataset, the app also performs time-series clustering anaylsis using the R package [dtwclust](https://cran.r-project.org/web/packages/dtwclust/index.html).
-
-
-
-
